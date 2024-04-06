@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect # used to render HTML templates with context data
 from .models import Video
 from .forms import VideoForm, SearchForm
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models.functions import Lower
+
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 
 
 def home(request):
@@ -44,3 +47,16 @@ def video_list(request):
         videos = Video.objects.order_by(Lower('name'))
 
     return render(request, 'video_collection/video_list.html', {'videos': videos, 'search_form': search_form})
+
+
+# Function responsible for deleting a video object from the database
+# Decorator ensures that the view only responds to HTTP POST requests.
+# It returns a 405 Method Not Allowed response for all other HTTP methods.
+@require_POST
+def delete_video(request, video_id):
+    #  used to retrieve an object from the database based on the provided lookup parameters.
+    #  If the object does not exist, it raises a 404 Http404 exception.
+    video = get_object_or_404(Video, pk=video_id)
+    video.delete()
+    # Used to perform a redirect to a specified URL
+    return redirect('video_list')

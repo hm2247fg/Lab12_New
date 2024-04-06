@@ -435,3 +435,35 @@ class TestVideoModel(TestCase):
         Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4')
         with self.assertRaises(IntegrityError):
             Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4')
+
+
+class TestVideoDelete(TestCase):
+    def setUp(self):
+        # Create a test video object before running each test case
+        self.video = Video.objects.create(name='Test Video', url='https://www.youtube.com/watch?v=R5xMzJe-NLQ&t=1s')
+
+    def test_delete_video(self):
+        # Test deleting an existing video
+        # Get the initial count of videos
+        initial_count = Video.objects.count()
+        # Send a POST request to delete the video
+        response = self.client.post(reverse('delete_video', args=[self.video.id]))
+        # Check if the response is a redirect (HTTP status code 302)
+        # Check for redirection
+        self.assertEqual(response.status_code, 302)
+        # Check if the video is deleted by verifying the count
+        # Check if video is deleted
+        self.assertEqual(Video.objects.count(), initial_count - 1)
+
+    def test_delete_nonexistent_video(self):
+        # Test attempting to delete a non-existent video
+        # Get the initial count of videos
+        initial_count = Video.objects.count()
+        # Assuming there's no video with this ID
+        nonexistent_id = self.video.id + 1
+        # Send a POST request to delete a non-existent video
+        response = self.client.post(reverse('delete_video', args=[nonexistent_id]))
+        # Check if the response is a 404 Not Found
+        self.assertEqual(response.status_code, 404)
+        # Check if the video count remains unchanged after attempting deletion
+        self.assertEqual(Video.objects.count(), initial_count)
