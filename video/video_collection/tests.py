@@ -9,6 +9,7 @@ from .models import Video
 class TestHomePageMessage(TestCase):
 
     def test_app_title_message_shown_on_home_page(self):
+        # Test if the home page contains the expected title message
         url = reverse('home')
         response = self.client.get(url)
         self.assertContains(response, 'Exercise Videos')
@@ -17,9 +18,10 @@ class TestHomePageMessage(TestCase):
 class TestAddVideos(TestCase):
 
     # Adding a video, added to DB and video_id created
-
+    # Test adding a video
     def test_add_video(self):
-
+        # Test adding a video and verifying its presence in the database and on the video list page
+        # Prepare valid video data
         add_video_url = reverse('add_video')
 
         valid_video = {
@@ -27,10 +29,11 @@ class TestAddVideos(TestCase):
             'url': 'https://www.youtube.com/watch?v=4vTJHUDB5ak',
             'notes': 'yoga for neck and shoulders'
         }
-
+        # Submit the form and follow redirects
         # follow=True necessary because the view redirects to the video list after a video is successfully added.
         response = self.client.post(add_video_url, data=valid_video, follow=True)
 
+        # Assertions to check if the video is added successfully
         # redirect to video list
         self.assertTemplateUsed('video_collection/video_list.html')
 
@@ -104,7 +107,10 @@ class TestAddVideos(TestCase):
         self.assertEqual(expected_videos_in_context, videos_in_context)
 
     # Notes are optional
+    # Test if a video can be added without notes
     def test_add_video_no_notes_video_added(self):
+        # Test adding a video without notes and verify its presence in the database and on the video list page
+        # (similar to the previous test but without notes)
 
         add_video_url = reverse('add_video')
 
@@ -141,9 +147,10 @@ class TestAddVideos(TestCase):
         self.assertEqual('4vTJHUDB5ak', video.video_id)
 
     # Invalid videos not added
-
+    # Test adding a video with missing fields
     def test_add_video_missing_fields(self):
-
+        # Test adding a video with missing required fields and verify error messages
+        # (checks if the form validation works correctly)
         add_video_url = reverse('add_video')
 
         invalid_videos = [
@@ -193,9 +200,10 @@ class TestAddVideos(TestCase):
             # And we can also check that message is displayed on the page
             self.assertContains(response, 'Check the data entered')
 
-    #  Duplicates not allowed
-
+    # Duplicates not allowed
+    # Test adding a duplicate video
     def test_add_duplicate_video_not_added(self):
+        # Test adding a duplicate video and verify that it's not added and appropriate messages are shown
 
         # Since an integrity error is raised, the database has to be rolled back to the state before this
         # action (here, adding a duplicate video) was attempted. This is a separate transaction so the
@@ -240,7 +248,9 @@ class TestAddVideos(TestCase):
         video_count = Video.objects.count()
         self.assertEqual(1, video_count)
 
+    # Test adding a video with an invalid URL
     def test_add_video_invalid_url_not_added(self):
+        # Test adding a video with an invalid URL and verify that it's not added and appropriate messages are shown
 
         # what other invalid strings shouldn't be allowed?
 
@@ -295,10 +305,12 @@ class TestAddVideos(TestCase):
 
 
 class TestVideoList(TestCase):
-
+    # Test cases related to the video list page
     # All videos shown on list page, sorted by name, case insensitive
 
     def test_all_videos_displayed_in_correct_order(self):
+        # Test if all videos are displayed in the correct order on the video list page
+        # (checks if videos are sorted alphabetically by name)
         v1 = Video.objects.create(name='XYZ', notes='example', url='https://www.youtube.com/watch?v=123')
         v2 = Video.objects.create(name='ABC', notes='example', url='https://www.youtube.com/watch?v=456')
         v3 = Video.objects.create(name='lmn', notes='example', url='https://www.youtube.com/watch?v=789')
@@ -309,23 +321,27 @@ class TestVideoList(TestCase):
         videos_in_template = list(response.context['videos'])
         self.assertEqual(expected_video_order, videos_in_template)
 
-    # No video message
-
     def test_no_video_message(self):
+        # No video message
+        # Test if a message is displayed when there are no videos
+        # (checks if the correct message is displayed when the video list is empty)
         response = self.client.get(reverse('video_list'))
         videos_in_template = response.context['videos']
         self.assertContains(response, 'No videos.')
         self.assertEqual(0, len(videos_in_template))
 
-    # 1 video vs 4 videos message
-
     def test_video_number_message_single_video(self):
+        # 1 video vs 4 videos message
+        # Test if the correct message is displayed when there is only one video
+        # (singular form of the message)
         v1 = Video.objects.create(name='XYZ', notes='example', url='https://www.youtube.com/watch?v=123')
         response = self.client.get(reverse('video_list'))
         self.assertContains(response, '1 video')
         self.assertNotContains(response, '1 videos')  # check this, because '1 videos' contains '1 video'
 
     def test_video_number_message_multiple_videos(self):
+        # Test if the correct message is displayed when there are multiple videos
+        # (plural form of the message)
         v1 = Video.objects.create(name='XYZ', notes='example', url='https://www.youtube.com/watch?v=123')
         v2 = Video.objects.create(name='ABC', notes='example', url='https://www.youtube.com/watch?v=456')
         v3 = Video.objects.create(name='uvw', notes='example', url='https://www.youtube.com/watch?v=789')
@@ -337,6 +353,8 @@ class TestVideoList(TestCase):
     # search only shows matching videos, partial case-insensitive matches
 
     def test_video_search_matches(self):
+        # Test if video search returns matching videos
+        # (checks if search functionality works correctly)
         v1 = Video.objects.create(name='ABC', notes='example', url='https://www.youtube.com/watch?v=456')
         v2 = Video.objects.create(name='nope', notes='example', url='https://www.youtube.com/watch?v=789')
         v3 = Video.objects.create(name='abc', notes='example', url='https://www.youtube.com/watch?v=123')
@@ -348,6 +366,8 @@ class TestVideoList(TestCase):
         self.assertEqual(expected_video_order, videos_in_template)
 
     def test_video_search_no_matches(self):
+        # Test if appropriate message is displayed when there are no search matches
+        # (checks if the correct message is displayed when search yields no results)
         v1 = Video.objects.create(name='ABC', notes='example', url='https://www.youtube.com/watch?v=456')
         v2 = Video.objects.create(name='nope', notes='example', url='https://www.youtube.com/watch?v=789')
         v3 = Video.objects.create(name='abc', notes='example', url='https://www.youtube.com/watch?v=123')
@@ -361,17 +381,21 @@ class TestVideoList(TestCase):
 
 
 class TestVideoModel(TestCase):
+    # Test cases related to the Video model
 
     def test_create_id(self):
+        # Test if the video ID is correctly extracted from the URL and stored in the database
         video = Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4')
         self.assertEqual('IODxDxX7oi4', video.video_id)
 
     def test_create_id_valid_url_with_time_parameter(self):
+        # Test if the video ID extraction works with a valid URL containing additional parameters
         # a video that is playing and paused may have a timestamp in the query
         video = Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4&ts=14')
         self.assertEqual('IODxDxX7oi4', video.video_id)
 
     def test_create_video_notes_optional(self):
+        # Test if a video can be created without notes
         v1 = Video.objects.create(name='example', url='https://www.youtube.com/watch?v=67890')
         v2 = Video.objects.create(name='different example', notes='example',
                                   url='https://www.youtube.com/watch?v=12345')
@@ -381,6 +405,7 @@ class TestVideoModel(TestCase):
                               database_videos)  # check contents of two lists/iterables but order doesn't matter.
 
     def test_invalid_urls_raise_validation_error(self):
+        # Test if creating a video with an invalid URL raises a validation error
         invalid_video_urls = [
             'https://www.youtube.com/watch',
             'https://www.youtube.com/watch/somethingelse',
@@ -406,6 +431,7 @@ class TestVideoModel(TestCase):
         self.assertEqual(0, video_count)
 
     def duplicate_video_raises_integrity_error(self):
+        # Test if creating a duplicate video raises an integrity error
         Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4')
         with self.assertRaises(IntegrityError):
             Video.objects.create(name='example', url='https://www.youtube.com/watch?v=IODxDxX7oi4')

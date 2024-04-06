@@ -3,17 +3,19 @@ from django.db import models
 from django.core.exceptions import ValidationError
 
 
+# Model for storing video information
 class Video(models.Model):
-    name = models.CharField(max_length=200)
-    url = models.CharField(max_length=400)
-    notes = models.TextField(blank=True, null=True)
-    video_id = models.CharField(max_length=40, unique=True)
+    name = models.CharField(max_length=200)  # Name of the video
+    url = models.CharField(max_length=400)  # URL of the video
+    notes = models.TextField(blank=True, null=True)  # Additional notes about the video
+    video_id = models.CharField(max_length=40, unique=True)  # ID of the video
 
     def save(self, *args, **kwargs):
         # checks for a valid YouTube URL in the form
         # https://www.youtube.com/watch?v=12345678
         # where 12345678 is the video ID
         # extract the video id from the URL, prevent save if not valid YouTube URL or id ID is not found in URL
+        # Custom save method to validate and extract video ID from YouTube URL
         try:
             url_components = parse.urlparse(self.url)
 
@@ -37,7 +39,7 @@ class Video(models.Model):
         except ValueError as e:  # URL parsing errors, malformed URLs
             raise ValidationError(f'Unable to parse URL {self.url}') from e
 
-        super().save(*args, **kwargs)  # don't forget!
+        super().save(*args, **kwargs)  # don't forget! Call the original save method
 
     def __str__(self):
         # String displayed in the admin console, or when printing a model object.

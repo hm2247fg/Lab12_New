@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# URL patterns for the project
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('video_collection.urls'))
+    path('admin/', admin.site.urls),  # Admin site URL
+    path('', include('video_collection.urls'))  # Include URL patterns from the 'video_collection' app
 ]

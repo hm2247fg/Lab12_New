@@ -11,6 +11,9 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+# Set the DJANGO_SETTINGS_MODULE environment variable to 'video.settings'
+# This specifies the settings module for the Django application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'video.settings')
 
+# Retrieve the WSGI application object for the Django project
 application = get_wsgi_application()
