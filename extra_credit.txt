@@ -1,0 +1,25 @@
+Optional (extra credit) question:
+
+What other URLs strings should be used when checking that invalid YouTube URLs are rejected?
+
+Answer:
+
+1. Invalid YouTube video URLs:
+
+URLs with incorrect video IDs.
+URLs with invalid characters in the video ID.
+URLs with incomplete video IDs.
+URLs with non-existent video IDs.
+
+2. Non-YouTube URLs:
+
+URLs from other video hosting platforms.
+URLs with incorrect formats (e.g., missing protocol, incorrect domain).
+URLs to non-video content.
+
+3. Malformed or misspelled URLs:
+
+URLs with missing or incorrect parts (e.g., missing protocol, missing domain).
+URLs with extra parameters or query strings that are not part of the standard YouTube URL format.
+
+source: https://docs.djangoproject.com/
