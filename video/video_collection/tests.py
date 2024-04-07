@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.test import TestCase
 from django.urls import reverse
 from django.core.exceptions import ValidationError
@@ -467,3 +468,41 @@ class TestVideoDelete(TestCase):
         self.assertEqual(response.status_code, 404)
         # Check if the video count remains unchanged after attempting deletion
         self.assertEqual(Video.objects.count(), initial_count)
+
+
+class VideoDetailTestCase(TestCase):
+    def setUp(self):
+        # Create a sample video for testing
+        self.video = Video.objects.create(
+            name='Test Video',
+            url='https://www.youtube.com/watch?v=ewow1NDSfKw',
+            notes='This is a test video',
+            video_id='test_id'
+        )
+
+    def test_video_detail_existing_video(self):
+        # Get the URL for the video detail page for the existing video
+        detail_url = reverse('video_list')
+
+        # Issue a GET request to the detail URL
+        response = self.client.get(detail_url)
+
+        # Check that the response status code is 200 (OK)
+        self.assertEqual(response.status_code, 200)
+
+        # Check that the response contains the video's information
+        self.assertContains(response, self.video.name)
+        self.assertContains(response, self.video.url)
+        self.assertContains(response, self.video.notes)
+
+    # def test_video_detail_nonexistent_video(self):
+    #     # Get the URL for a non-existent video detail page
+    #     detail_url = reverse('video_list')
+    #     #
+    #     # # Issue a GET request to the detail URL
+    #     response = self.client.get(detail_url)
+    #     #
+    #     # # Check that the response status code is 404 (Not Found)
+    #     self.assertEqual(response.status_code, 404)
+
+

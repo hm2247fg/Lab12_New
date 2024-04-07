@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render, redirect # used to render HTML templates with context data
 from .models import Video
 from .forms import VideoForm, SearchForm
@@ -60,3 +61,4 @@ def delete_video(request, video_id):
     video.delete()
     # Used to perform a redirect to a specified URL
     return redirect('video_list')
+
